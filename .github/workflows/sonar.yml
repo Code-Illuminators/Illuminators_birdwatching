@@ -17,10 +17,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.10"
-      # - name: Run tests
-      #   run: |
-      #     python -m coverage run -m pytest
-      #     python -m coverage xml -o coverage.xml
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          python -m coverage run -m pytest
+          python -m coverage xml -o coverage.xml
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v6
         env:
