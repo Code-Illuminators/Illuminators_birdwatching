@@ -9,6 +9,7 @@ from Birdwatching.utils.databases import post_sql, get_user, insert_user
 def app():
     app = create_app()
 
+    app.config["SECRET_KEY"] = "testkey123"
     app.config["DATABASE_URL"] = "sqlite:///:memory:"
 
     init_db(app)
@@ -18,7 +19,7 @@ def app():
         Base.metadata.create_all(engine)
         
         password_hash = generate_password_hash('password')
-        insert_user('user', password_hash)
+        insert_user('user', password_hash) 
 
 
     yield app
