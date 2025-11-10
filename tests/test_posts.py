@@ -16,8 +16,7 @@ def create_user_and_post(app):
     return user, post
 
 def login_user(client, username="user1", password="password"):
-    with client.session_transaction():
-        client.post('/auth/login', data={"username": username, "password": password})
+    client.post('/auth/login', data={"username": username, "password": password})
     return client
 
 
@@ -27,11 +26,12 @@ def test_create_post(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+    
     with client.session_transaction() as session:
-        client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -49,11 +49,12 @@ def test_create_post_else(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+    
     with client.session_transaction() as session:
-        client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -71,11 +72,12 @@ def test_create_post_invalid_file_type(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+    
     with client.session_transaction() as session:
-        client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -93,16 +95,16 @@ def test_create_post_both_field_required(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+    
     with client.session_transaction() as session:
-        client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
 
-    photo = (io.BytesIO(b"Image"), 'test_bird.jpg')
     response = client.post("/posts/create", data={
         "location": "lviv",
     })
@@ -120,8 +122,9 @@ def test_edit_post_success(client, app):
 
     assert response.status_code == 200
 
-    updated_post = get_post(post["id"])
-    assert updated_post["location"] == "New Location"
+    with app.app_context():
+        updated_post = get_post(post["id"])
+        assert updated_post["location"] == "New Location"
 
 def test_edit_post_missing_location(client, app):
     user, post = create_user_and_post(app)

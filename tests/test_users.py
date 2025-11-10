@@ -27,15 +27,6 @@ def test_delete_user(client, app):
     with app.app_context():
         deleted_user = get_user(user_id)
         assert deleted_user is None
-        
-    assert response.status_code in (200, 302)
-
-    response = client.post(f'/users/{user_id}/delete', follow_redirects=True)
-    assert response.status_code == 200
-    
-    with app.app_context():
-        deleted_user = get_user(user_id)
-        assert deleted_user is None
 
 def test_edit_user_none(client, app):
     with client.session_transaction() as session:
