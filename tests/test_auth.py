@@ -33,11 +33,12 @@ def test_login(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
         
+    response = client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+
     with client.session_transaction() as session:
-        response = client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -65,11 +66,12 @@ def test_logout(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
         
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+
     with client.session_transaction() as session:
-        client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session

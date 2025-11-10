@@ -10,17 +10,16 @@ def test_delete_user(client, app):
         user = get_user_by_username('user1')
         user_id = user['id']
 
+    client.post('/auth/login', data={
+        'username': 'user1',
+        'password': 'password',
+    })
+    
     with client.session_transaction() as session:
-        response = client.post('/auth/login', data={
-            'username': 'user1',
-            'password': 'password',
-        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
         
-    assert response.status_code in (200, 302)
-
     response = client.post(f'/users/{user_id}/delete', follow_redirects=True)
     assert response.status_code == 200
     
@@ -40,11 +39,11 @@ def test_edit_user_none(client, app):
 def test_edit_admin_with_new_password(client, app):
     with app.app_context():
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
-                     {"username": "user1", "password": "password", "role": "user"})
-        user = get_user_by_username("user")
+                     {"username": "user1", "password": generate_password_hash("password"), "role": "user"})
+        user = get_user_by_username("user1")
 
     with client.session_transaction() as session:
-        session["user_id"] = 1
+        session["user_id"] = user["id"]
         session["user_role"] = "admin"
         session["username"] = "user1"
 
@@ -65,11 +64,11 @@ def test_edit_admin_with_new_password(client, app):
 def test_edit_admin_without_password(client, app):
     with app.app_context():
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
-                     {"username": "user1", "password": "password", "role": "user"})
-        user = get_user_by_username("user")
+                     {"username": "user1", "password": generate_password_hash("password"), "role": "user"})
+        user = get_user_by_username("user1")
 
     with client.session_transaction() as session:
-        session["user_id"] = 1
+        session["user_id"] = user["id"]
         session["user_role"] = "admin"
         session["username"] = "user1"
 
@@ -92,7 +91,7 @@ def test_edit_own_password(client, app):
         hashed = generate_password_hash("password")
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
                      {"username": "user1", "password": hashed, "role": "user"})
-        user = get_user_by_username("user")
+        user = get_user_by_username("user1")
 
     with client.session_transaction() as session:
         session["user_id"] = user["id"]

@@ -1,9 +1,7 @@
 import pytest
 from Birdwatching import create_app
-from Birdwatching.utils.databases import Base, init_db
+from Birdwatching.utils.databases import Base, init_db, insert_user 
 from werkzeug.security import generate_password_hash
-# Додаємо insert_user, оскільки ми його використовуємо для створення тестового користувача
-from Birdwatching.utils.databases import post_sql, get_user, insert_user 
 
 @pytest.fixture()
 def app():
@@ -20,7 +18,6 @@ def app():
         
         password_hash = generate_password_hash('password')
         insert_user('user', password_hash) 
-
 
     yield app
 
