@@ -16,7 +16,9 @@ def create_user_and_post(app):
     return user, post
 
 def login_user(client, username="user1", password="password"):
-    return client.post('/auth/login', data={"username": username, "password": password})
+    with client.session_transaction():
+        client.post('/auth/login', data={"username": username, "password": password})
+    return client
 
 
 
