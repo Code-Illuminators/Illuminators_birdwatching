@@ -13,13 +13,13 @@ def app():
     init_db(app)
     from Birdwatching.utils.databases import engine
 
-    with app.app_context():
-        Base.metadata.create_all(engine)
+    # with app.app_context():
+    #     Base.metadata.create_all(engine)
 
     yield app
 
-    with app.app_context():
-        Base.metadata.drop_all(engine)
+    # with app.app_context():
+    #     Base.metadata.drop_all(engine)
 
 @pytest.fixture
 def client(app):
