@@ -21,20 +21,17 @@ def login_user(client, username="user1", password="password"):
     return client
 
 
-
-
 def test_create_post(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
         insert_user('user1', password)
 
-    response = client.post('/auth/login', data={
-        'username': 'user1',
-        'password': 'password',
-    })
-
     with client.session_transaction() as session:
+        client.post('/auth/login', data={
+            'username': 'user1',
+            'password': 'password',
+        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -52,12 +49,11 @@ def test_create_post_else(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
-    response = client.post('/auth/login', data={
-        'username': 'user1',
-        'password': 'password',
-    })
-
     with client.session_transaction() as session:
+        client.post('/auth/login', data={
+            'username': 'user1',
+            'password': 'password',
+        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -75,12 +71,11 @@ def test_create_post_invalid_file_type(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
-    response = client.post('/auth/login', data={
-        'username': 'user1',
-        'password': 'password',
-    })
-
     with client.session_transaction() as session:
+        client.post('/auth/login', data={
+            'username': 'user1',
+            'password': 'password',
+        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -98,12 +93,11 @@ def test_create_post_both_field_required(client, app):
         password = generate_password_hash('password')
         insert_user('user1', password)
 
-    response = client.post('/auth/login', data={
-        'username': 'user1',
-        'password': 'password',
-    })
-
     with client.session_transaction() as session:
+        client.post('/auth/login', data={
+            'username': 'user1',
+            'password': 'password',
+        })
         assert 'user_id' in session
         assert 'username' in session
         assert 'user_role' in session
@@ -116,9 +110,9 @@ def test_create_post_both_field_required(client, app):
 
 def test_edit_post_success(client, app):
     user, post = create_user_and_post(app)
-    login_user(client)
+    client_logged_in = login_user(client)
 
-    response = client.post(
+    response = client_logged_in.post(
         f"/posts/{post['id']}/edit",
         data={"location": "New Location"},
         follow_redirects=True
@@ -131,9 +125,9 @@ def test_edit_post_success(client, app):
 
 def test_edit_post_missing_location(client, app):
     user, post = create_user_and_post(app)
-    login_user(client)
+    client_logged_in = login_user(client)
 
-    response = client.post(
+    response = client_logged_in.post(
         f"/posts/{post['id']}/edit",
         data={"location": ""},
         follow_redirects=True
@@ -144,14 +138,14 @@ def test_edit_post_missing_location(client, app):
 
 def test_edit_post_invalid_file_type(client, app):
     user, post = create_user_and_post(app)
-    login_user(client)
+    client_logged_in = login_user(client)
 
     data = {
         "location": "New Location",
         "image": (io.BytesIO(b"fake image content"), "file.exe")
     }
 
-    response = client.post(
+    response = client_logged_in.post(
         f"/posts/{post['id']}/edit",
         data=data,
         content_type='multipart/form-data',
