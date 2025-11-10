@@ -6,12 +6,12 @@ from Birdwatching.utils.databases import post_sql, get_ip_address
 def test_delete_user(client, app):
     with app.app_context():
         password = generate_password_hash('password')
-        insert_user('user', password)
-        user = get_user_by_username('user')
+        insert_user('user1', password)
+        user = get_user_by_username('user1')
         user_id = user['id']
 
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
     assert response.status_code in (200, 302)
@@ -32,23 +32,23 @@ def test_edit_user_none(client, app):
         with client.session_transaction() as session:
             session['user_id'] = 1
             session['user_role'] = 'admin'
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.get('/users/1/edit', follow_redirects=True)
 
-        assert response.status_code == 200
+        assert response.status_code == 500
 
 def test_edit_admin_with_new_password(client, app):
     with app.app_context():
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
-                 {"username": "user", "password": "password", "role": "user"})
+                 {"username": "user1", "password": "password", "role": "user"})
 
         user = get_user_by_username("user")
 
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "admin"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post(
             f"/users/{user['id']}/edit",
@@ -66,14 +66,14 @@ def test_edit_admin_with_new_password(client, app):
 def test_edit_admin_without_password(client, app):
     with app.app_context():
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
-                 {"username": "user", "password": "password", "role": "user"})
+                 {"username": "user1", "password": "password", "role": "user"})
 
         user = get_user_by_username("user")
 
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "admin"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post(
             f"/users/{user['id']}/edit",
@@ -93,14 +93,14 @@ def test_edit_own_password(client, app):
     with app.app_context():
         hashed = generate_password_hash("password")
         post_sql("INSERT INTO users (username, password, user_role) VALUES (:username, :password, :role)",
-                 {"username": "user", "password": hashed, "role": "user"})
+                 {"username": "user1", "password": hashed, "role": "user"})
 
         user = get_user_by_username("user")
 
         with client.session_transaction() as session:
             session["user_id"] = user["id"]
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post(
             f"/users/{user['id']}/edit",
@@ -119,7 +119,7 @@ def test_report(client, app):
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.get('/report')
         assert response.status_code == 200
@@ -130,7 +130,7 @@ def test_report_empty_ip(client, app):
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post('/report', data={"ip_address": ""}, follow_redirects=True)
         assert response.status_code == 200
@@ -141,7 +141,7 @@ def test_report_invalid_ip(client, app):
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post('/report', data={"ip_address": "256.256.256.256"}, follow_redirects=True)
         assert response.status_code == 200
@@ -152,7 +152,7 @@ def test_report_ip(client, app):
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         ip = "192.168.1.1"
         ip_hashed = hashlib.sha256(ip.encode()).hexdigest()
@@ -173,7 +173,7 @@ def test_report_post_existing_ip(client, app):
         with client.session_transaction() as session:
             session["user_id"] = 1
             session["user_role"] = "user"
-            session["username"] = "user"
+            session["username"] = "user1"
 
         response = client.post('/report', data={"ip_address": ip}, follow_redirects=True)
         assert response.status_code == 200

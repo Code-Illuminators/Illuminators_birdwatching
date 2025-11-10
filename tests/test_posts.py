@@ -5,8 +5,8 @@ from Birdwatching.utils.databases import insert_user, get_user_by_username, post
 def create_user_and_post(app):
     with app.app_context():
         password = generate_password_hash("password")
-        insert_user("user", password)
-        user = get_user_by_username("user")
+        insert_user("user1", password)
+        user = get_user_by_username("user1")
 
         post_sql(
             "INSERT INTO posts (location, image_path, user_id) VALUES (:location, :image_path, :user_id)",
@@ -15,7 +15,7 @@ def create_user_and_post(app):
         post = get_post(1)
     return user, post
 
-def login_user(client, username="user", password="password"):
+def login_user(client, username="user1", password="password"):
     return client.post('/auth/login', data={"username": username, "password": password})
 
 
@@ -25,10 +25,10 @@ def test_create_post(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
 
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
 
@@ -48,10 +48,10 @@ def test_create_post_else(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
 
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
 
@@ -71,10 +71,10 @@ def test_create_post_invalid_file_type(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
 
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
 
@@ -94,10 +94,10 @@ def test_create_post_both_field_required(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
 
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
 

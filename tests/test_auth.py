@@ -3,7 +3,7 @@ from Birdwatching.utils.databases import insert_user
 
 def test_register(client, app):
     response = client.post('/auth/register', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
     assert response.status_code == 302
@@ -16,10 +16,10 @@ def test_user_exists(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
 
     response = client.post('/auth/register', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
     assert response.status_code == 200
@@ -29,9 +29,9 @@ def test_login(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
     print(response.data)
@@ -42,12 +42,12 @@ def test_login(client, app):
     assert response.status_code == 302
 
 def test_invalid_login(client, app):
-    print("create wrong user")
+    print("create wrong user1")
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
-    print("login wrong user")
+        insert_user('user1', password)
+    print("login wrong user1")
     response = client.post('/auth/login', data={
         'username': 'user123',
         'password': 'password',
@@ -61,9 +61,9 @@ def test_logout(client, app):
     with app.app_context():
         from werkzeug.security import generate_password_hash
         password = generate_password_hash('password')
-        insert_user('user', password)
+        insert_user('user1', password)
     response = client.post('/auth/login', data={
-        'username': 'user',
+        'username': 'user1',
         'password': 'password',
     })
     print(response.data)
